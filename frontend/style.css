@@ -152,6 +152,15 @@ body {
   color: var(--text-dim);
 }
 
+.error-state {
+  color: var(--crit);
+  border: 1px solid rgba(255, 84, 112, 0.45);
+  background: rgba(255, 84, 112, 0.08);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+
 .btn {
   font-family: var(--font-ui);
   font-size: 13.5px;
@@ -316,6 +325,8 @@ body {
 }
 
 .issue-body { margin-top: 8px; font-size: 13px; color: var(--text); line-height: 1.5; }
+.issue-confidence { color: var(--text-dim); font-family: var(--font-mono); font-size: 11px; }
+.copy-fix { margin-top: 10px; }
 .issue-body .label { color: var(--text-dim); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-top: 8px; margin-bottom: 2px; }
 
 .issue-snippet {

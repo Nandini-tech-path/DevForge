@@ -5,6 +5,7 @@ const els = {
   runBtn: document.getElementById("runBtn"),
   exampleBtn: document.getElementById("exampleBtn"),
   charCount: document.getElementById("charCount"),
+  errorState: document.getElementById("errorState"),
   engineStatus: document.getElementById("engineStatus"),
   emptyState: document.getElementById("emptyState"),
   resultsRoot: document.getElementById("resultsRoot"),
@@ -94,8 +95,9 @@ async function runReview() {
   const code = els.codeInput.value;
   if (!code.trim()) return;
 
+  els.errorState.hidden = true;
   els.runBtn.disabled = true;
-  els.runBtn.textContent = "Reviewing…";
+  els.runBtn.textContent = "Reviewing...";
 
   try {
     const res = await fetch("/api/review", {
@@ -111,7 +113,8 @@ async function runReview() {
     activeFilter = "all";
     renderReport(lastReport);
   } catch (e) {
-    alert(`Review failed: ${e.message}`);
+    els.errorState.textContent = `Review failed: ${e.message}`;
+    els.errorState.hidden = false;
   } finally {
     els.runBtn.disabled = false;
     els.runBtn.textContent = "Run review";
@@ -166,7 +169,7 @@ function renderIssues(report) {
   }
 
   els.issueList.innerHTML = issues
-    .map((issue) => `
+    .map((issue, issueIndex) => `
       <div class="issue-card sev-${issue.severity}">
         <div class="issue-top">
           <span class="issue-badge sev-${issue.severity}">${issue.severity}</span>
@@ -174,15 +177,24 @@ function renderIssues(report) {
           <span class="issue-meta">${issue.category} · ${issue.source} · ${issue.id}${issue.line ? ` · line ${issue.line}` : ""}</span>
         </div>
         <div class="issue-body">
+          <div class="issue-confidence">Confidence ${Math.round((issue.confidence ?? 0.8) * 100)}%${issue.cwe ? ` · ${escapeHtml(issue.cwe)}` : ""}</div>
           <span class="label">Why it matters</span>
           ${escapeHtml(issue.description)}
           <span class="label">Suggested fix</span>
           ${escapeHtml(issue.suggestion)}
+          <button class="copy-fix btn btn-ghost btn-sm" data-issue-index="${issueIndex}">Copy suggested fix</button>
           ${issue.line_snippet ? `<div class="issue-snippet">${escapeHtml(issue.line_snippet)}</div>` : ""}
         </div>
       </div>
     `)
     .join("");
+
+  els.issueList.querySelectorAll(".copy-fix").forEach((button, index) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(issues[index].suggestion || "");
+      button.textContent = "Copied";
+    });
+  });
 }
 
 function sevVar(sev) {

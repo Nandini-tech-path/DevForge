@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "ewCMxq33/Ju835wbDYiBf2Qa76CkycTNzW5Ll77xqUs=",
+  "Source": "CodeSentinel.Api",
+  "BasePath": "_content/CodeSentinel.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

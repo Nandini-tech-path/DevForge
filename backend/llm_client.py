@@ -104,6 +104,7 @@ def run_llm_review(code: str, language: str, static_findings_summary: str) -> Li
                     line=f.get("line"),
                     line_snippet=None,
                     source="llm",
+                    confidence=0.65,
                 )
             )
         except (ValueError, KeyError):

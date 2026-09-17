@@ -1,7 +1,7 @@
 import logging
 import os
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,6 +14,12 @@ from backend.report import to_markdown
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("main")
+
+
+def require_api_key(request: Request) -> None:
+    """Protect review endpoints when API_AUTH_TOKEN is configured."""
+    if settings.API_AUTH_TOKEN and request.headers.get("X-API-Key") != settings.API_AUTH_TOKEN:
+        raise HTTPException(status_code=401, detail="A valid X-API-Key header is required.")
 
 app = FastAPI(
     title="AI Code Review & Vulnerability Detection Agent",
@@ -42,7 +48,7 @@ def health():
 
 
 @app.post("/api/review", response_model=ReviewReport)
-def review(request: ReviewRequest):
+def review(request: ReviewRequest, _: None = Depends(require_api_key)):
     try:
         return review_code(request.code, request.filename, request.language)
     except ValueError as e:
@@ -53,7 +59,7 @@ def review(request: ReviewRequest):
 
 
 @app.post("/api/review/file", response_model=ReviewReport)
-async def review_file(file: UploadFile = File(...)):
+async def review_file(file: UploadFile = File(...), _: None = Depends(require_api_key)):
     content = await file.read()
     try:
         code = content.decode("utf-8", errors="replace")
@@ -66,7 +72,7 @@ async def review_file(file: UploadFile = File(...)):
 
 
 @app.post("/api/review/markdown", response_class=PlainTextResponse)
-def review_markdown(request: ReviewRequest):
+def review_markdown(request: ReviewRequest, _: None = Depends(require_api_key)):
     try:
         report = review_code(request.code, request.filename, request.language)
         return to_markdown(report)

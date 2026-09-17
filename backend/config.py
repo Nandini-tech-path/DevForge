@@ -20,8 +20,13 @@ class Settings:
     MAX_FILE_SIZE_KB: int = int(os.getenv("MAX_FILE_SIZE_KB", "500"))
     CACHE_TTL_SECONDS: int = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
     CORS_ORIGINS: list = [
-        o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()
+        o.strip()
+        for o in os.getenv(
+            "CORS_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000"
+        ).split(",")
+        if o.strip()
     ]
+    API_AUTH_TOKEN: str = os.getenv("API_AUTH_TOKEN", "")
 
     @property
     def llm_available(self) -> bool:

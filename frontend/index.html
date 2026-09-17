@@ -24,7 +24,7 @@
       <div class="panel-head">
         <h2>Source</h2>
         <div class="file-row">
-          <input id="filename" type="text" value="snippet.py" spellcheck="false" />
+          <input id="filename" aria-label="Source filename" type="text" value="snippet.py" spellcheck="false" />
           <label class="upload-btn">
             Upload file
             <input id="fileInput" type="file" hidden />
@@ -32,13 +32,14 @@
         </div>
       </div>
 
-      <textarea id="codeInput" class="code-input" spellcheck="false" placeholder="Paste source code here…"></textarea>
+      <textarea id="codeInput" class="code-input" aria-label="Source code" spellcheck="false" placeholder="Paste source code here…"></textarea>
 
       <div class="action-row">
         <button id="runBtn" class="btn btn-primary">Run review</button>
         <button id="exampleBtn" class="btn btn-ghost">Load vulnerable example</button>
         <span id="charCount" class="char-count">0 chars</span>
       </div>
+      <p id="errorState" class="error-state" role="alert" hidden></p>
     </section>
 
     <section class="panel results-panel">

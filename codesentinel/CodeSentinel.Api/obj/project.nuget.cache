@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "JRdFxOmhkOc=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\silve\\Downloads\\ai-code-review-agent\\codesentinel\\CodeSentinel.Api\\CodeSentinel.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\silve\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.0\\microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",
+    "C:\\Users\\silve\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

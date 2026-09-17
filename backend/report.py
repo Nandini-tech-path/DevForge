@@ -64,6 +64,10 @@ def to_markdown(report: ReviewReport) -> str:
                 f"[{issue.severity.value.upper()}] {issue.title}{loc}"
             )
             lines.append(f"*Category: {issue.category.value} · Source: {issue.source} · Rule: `{issue.id}`*")
+            metadata = [f"Confidence: {issue.confidence:.0%}"]
+            if issue.cwe:
+                metadata.append(f"CWE: {issue.cwe}")
+            lines.append(f"*{' · '.join(metadata)}*")
             lines.append("")
             lines.append(f"**Why it matters:** {issue.description}")
             lines.append("")

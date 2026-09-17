@@ -99,6 +99,11 @@ uvicorn backend.main:app --reload --port 8000
 
 Open **http://localhost:8000** for the web UI.
 
+For deployments that expose the review API beyond a trusted local network, set
+`API_AUTH_TOKEN` and send it as an `X-API-Key` header with review requests. The
+health endpoint remains public for liveness checks. Review findings include
+confidence scores and CWE mappings where a rule has a known mapping.
+
 ### Run with Docker
 
 ```bash

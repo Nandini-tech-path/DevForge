@@ -7,6 +7,7 @@ Pipeline:
   4. if enabled & available, run LLM pass for deeper/contextual Issues
   5. merge, dedupe, sort, score -> ReviewReport
 """
+import ast
 import logging
 from typing import List
 
@@ -28,6 +29,20 @@ from backend.static_rules import get_rules_for_language, line_number_for_match, 
 
 logger = logging.getLogger("analyzer")
 
+CWE_BY_RULE = {
+    "PY-SEC-001": "CWE-95",
+    "PY-SEC-002": "CWE-78",
+    "PY-SEC-003": "CWE-502",
+    "PY-SEC-004": "CWE-89",
+    "PY-SEC-005": "CWE-798",
+    "PY-SEC-006": "CWE-328",
+    "PY-SEC-007": "CWE-338",
+    "PY-BUG-002": "CWE-665",
+    "JS-SEC-001": "CWE-95",
+    "JS-SEC-002": "CWE-79",
+    "GEN-SEC-001": "CWE-321",
+}
+
 
 def _run_static_rules(code: str, language: str) -> List[Issue]:
     issues: List[Issue] = []
@@ -45,9 +60,35 @@ def _run_static_rules(code: str, language: str) -> List[Issue]:
                     line=line_no,
                     line_snippet=line_text(code, line_no),
                     source="static",
+                    confidence=0.92,
+                    cwe=rule.cwe or CWE_BY_RULE.get(rule.id),
                 )
             )
     return issues
+
+
+def _syntax_issue(code: str, language: str) -> List[Issue]:
+    if language != "python":
+        return []
+    try:
+        ast.parse(code)
+    except SyntaxError as error:
+        line = error.lineno or 1
+        return [
+            Issue(
+                id="PY-BUG-SYNTAX",
+                category=Category.BUG,
+                severity=Severity.HIGH,
+                title="Python syntax error",
+                description=f"The file cannot be parsed by Python: {error.msg}.",
+                suggestion="Fix the syntax error before running or merging this code.",
+                line=line,
+                line_snippet=line_text(code, line),
+                source="static",
+                confidence=1.0,
+            )
+        ]
+    return []
 
 
 def _metric_based_smells(metrics: Metrics) -> List[Issue]:
@@ -196,6 +237,7 @@ def review_code(code: str, filename: str = "snippet.txt", language: str = None) 
         return hit
 
     static_issues = _run_static_rules(code, lang)
+    static_issues += _syntax_issue(code, lang)
     metrics = compute_metrics(code)
     static_issues += _metric_based_smells(metrics)
 

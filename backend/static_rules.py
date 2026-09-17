@@ -24,6 +24,7 @@ class Rule:
     pattern: re.Pattern
     description: str
     suggestion: str
+    cwe: Optional[str] = None
 
 
 def _r(pattern: str, flags=re.IGNORECASE) -> re.Pattern:
@@ -190,6 +191,27 @@ JAVA_RULES: List[Rule] = [
     ),
 ]
 
+C_RULES: List[Rule] = [
+    Rule(
+        "C-SEC-001", Category.SECURITY, Severity.HIGH, "Unsafe string copy function",
+        _r(r"\b(strcpy|strcat|gets)\s*\("),
+        "Using unsafe C string functions can overflow the destination buffer and lead to memory corruption.",
+        "Use bounded functions such as snprintf, strlcpy, or safer allocation patterns that validate sizes.",
+    ),
+    Rule(
+        "C-SEC-002", Category.SECURITY, Severity.MEDIUM, "Unbounded format string",
+        _r(r"\bprintf\s*\([^\n]*\"\s*\)|fprintf\s*\([^\n]*\"\s*\)"),
+        "Calling printf or fprintf with user-controlled format strings allows format string attacks.",
+        "Use a fixed format string and pass arguments separately, e.g. printf(\"%s\", user_input).",
+    ),
+    Rule(
+        "C-BUG-001", Category.BUG, Severity.MEDIUM, "Potential NULL dereference",
+        _r(r"\*\s*\w+\s*;|if\s*\([^)]*==\s*NULL\)\s*\{\s*\}.*\*\w+"),
+        "This pattern can dereference a null pointer if the pointer was not checked before use.",
+        "Check for NULL before dereferencing and keep pointer validity explicit in the logic.",
+    ),
+]
+
 GO_RULES: List[Rule] = [
     Rule(
         "GO-SEC-001", Category.SECURITY, Severity.HIGH, "Command built with exec.Command from untrusted input",
@@ -223,6 +245,9 @@ RULES_BY_LANGUAGE = {
     "javascript": JAVASCRIPT_RULES,
     "typescript": JAVASCRIPT_RULES,
     "java": JAVA_RULES,
+    "c": C_RULES,
+    "cpp": C_RULES,
+    "c++": C_RULES,
     "go": GO_RULES,
 }
 

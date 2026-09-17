@@ -19,8 +19,18 @@ from backend.metrics import compute_metrics  # noqa: E402
 def test_detect_language_by_extension():
     assert detect_language("app.py", "") == "python"
     assert detect_language("app.js", "") == "javascript"
+    assert detect_language("app.java", "") == "java"
+    assert detect_language("main.c", "") == "c"
+    assert detect_language("main.cpp", "") == "cpp"
     assert detect_language("app.go", "") == "go"
     assert detect_language("unknown.xyz", "def foo(): pass") == "python"
+
+
+def test_c_and_java_have_rules():
+    from backend.static_rules import get_rules_for_language
+
+    assert any(rule.id.startswith("JAVA-") for rule in get_rules_for_language("java"))
+    assert any(rule.id.startswith("GEN-") for rule in get_rules_for_language("c"))
 
 
 def test_detects_eval_as_critical_security_issue():
@@ -30,6 +40,16 @@ def test_detects_eval_as_critical_security_issue():
     issue = next(i for i in report.issues if i.id == "PY-SEC-001")
     assert issue.severity.value == "critical"
     assert issue.category.value == "security"
+    assert issue.confidence == 0.92
+    assert issue.cwe == "CWE-95"
+
+
+def test_reports_python_syntax_errors_with_location():
+    report = review_code("def broken(:\n    pass\n", "broken.py")
+    issue = next(i for i in report.issues if i.id == "PY-BUG-SYNTAX")
+    assert issue.severity.value == "high"
+    assert issue.line == 1
+    assert issue.confidence == 1.0
 
 
 def test_detects_hardcoded_secret():

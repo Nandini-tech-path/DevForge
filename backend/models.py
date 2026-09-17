@@ -43,6 +43,8 @@ class Issue(BaseModel):
     line: Optional[int] = Field(None, description="1-indexed line number, if known")
     line_snippet: Optional[str] = Field(None, description="The offending line of code, if known")
     source: str = Field(..., description="Origin of the finding: 'static' or 'llm'")
+    confidence: float = Field(0.8, ge=0, le=1, description="Confidence that the finding is valid")
+    cwe: Optional[str] = Field(None, description="Related CWE identifier, if applicable")
 
 
 class ReviewRequest(BaseModel):
