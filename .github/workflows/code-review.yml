@@ -1,0 +1,54 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Get changed files
+        id: changed
+        run: |
+          git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '\.(py|js|jsx|ts|tsx|java|go|c|cpp|rb|php|cs|rs)$' > changed_files.txt || true
+          echo "count=$(wc -l < changed_files.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Run AI code review on changed files
+        if: steps.changed.outputs.count != '0'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          mkdir -p review-output
+          while IFS= read -r file; do
+            [ -f "$file" ] || continue
+            python cli/review_cli.py review "$file" --format markdown >> review-output/report.md
+            echo -e "\n\n---\n\n" >> review-output/report.md
+          done < changed_files.txt
+
+      - name: Gate on high/critical findings
+        if: steps.changed.outputs.count != '0'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python cli/review_cli.py review . --recursive --fail-on high \
+            --ext .py,.js,.jsx,.ts,.tsx,.java,.go > /dev/null
+
+      - name: Upload review report
+        if: steps.changed.outputs.count != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-code-review-report
+          path: review-output/report.md

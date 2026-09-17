@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codewatch — AI Code Review</title>
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">▍</span>
+      <span class="brand-name">Codewatch</span>
+      <span class="brand-tag">hybrid static + LLM code review</span>
+    </div>
+    <div id="engineStatus" class="engine-status">checking engine…</div>
+  </header>
+
+  <main class="layout">
+    <section class="panel input-panel">
+      <div class="panel-head">
+        <h2>Source</h2>
+        <div class="file-row">
+          <input id="filename" type="text" value="snippet.py" spellcheck="false" />
+          <label class="upload-btn">
+            Upload file
+            <input id="fileInput" type="file" hidden />
+          </label>
+        </div>
+      </div>
+
+      <textarea id="codeInput" class="code-input" spellcheck="false" placeholder="Paste source code here…"></textarea>
+
+      <div class="action-row">
+        <button id="runBtn" class="btn btn-primary">Run review</button>
+        <button id="exampleBtn" class="btn btn-ghost">Load vulnerable example</button>
+        <span id="charCount" class="char-count">0 chars</span>
+      </div>
+    </section>
+
+    <section class="panel results-panel">
+      <div id="emptyState" class="empty-state">
+        <p>Run a review to see findings here.</p>
+        <p class="empty-sub">Bugs, security issues, and code smells will be listed with severity, an explanation, and a suggested fix.</p>
+      </div>
+
+      <div id="resultsRoot" class="results-root hidden">
+        <div class="summary-strip">
+          <div class="risk-block">
+            <div class="risk-number" id="riskScore">0</div>
+            <div class="risk-label">risk score</div>
+          </div>
+          <div class="severity-counts" id="severityCounts"></div>
+          <div class="verdict" id="verdict"></div>
+        </div>
+
+        <div class="metrics-row" id="metricsRow"></div>
+
+        <div class="results-toolbar">
+          <div class="filter-group" id="filterGroup"></div>
+          <div class="export-group">
+            <button id="downloadJson" class="btn btn-ghost btn-sm">Export JSON</button>
+            <button id="downloadMd" class="btn btn-ghost btn-sm">Export Markdown</button>
+          </div>
+        </div>
+
+        <div id="issueList" class="issue-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

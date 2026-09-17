@@ -1,0 +1,13 @@
+services:
+  code-review-agent:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-4-6}
+      - ENABLE_LLM_REVIEW=${ENABLE_LLM_REVIEW:-true}
+      - MAX_FILE_SIZE_KB=${MAX_FILE_SIZE_KB:-500}
+      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS:-3600}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+    restart: unless-stopped
